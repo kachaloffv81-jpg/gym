@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Дневник тренировок</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #262B2B; color: #E6CCB2; font-family: 'Oswald', sans-serif;
+            max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; overflow-x: hidden;
+        }
+        
+        .screen { display: none; padding: 20px; padding-bottom: 100px; }
+        .screen.active { display: block; }
+
+        header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .back-btn { color: #FFA649; font-size: 28px; text-decoration: none; font-weight: 700; cursor: pointer; background: none; border: none; font-family: 'Oswald'; }
+        .page-title { font-size: 22px; font-weight: 700; color: #ffffff; text-transform: uppercase; flex: 1; }
+        
+        .main-header {
+            position: absolute; top: 20px; left: 20px; right: 20px; 
+            display: flex; justify-content: space-between; align-items: flex-start; z-index: 20;
+        }
+        .main-header-left { display: flex; flex-direction: column; }
+        .main-logo { font-size: 26px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* СЧЕТЧИК ТОННАЖА */
+        .tonnage-counter {
+            font-size: 14px; font-weight: 500; color: #FFA649; 
+            margin-top: 4px; letter-spacing: 0.5px;
+        }
+
+        .user-stats {
+            background-color: #333838; padding: 10px 15px; border-radius: 10px; 
+            display: flex; flex-direction: column; gap: 4px; font-size: 14px; 
+            font-weight: 500; color: #b0a593; text-align: right;
+        }
+
+        #main-workouts-list { margin-top: 110px; }
+
+        .workout-container { position: relative; margin-bottom: 60px; }
+        .workout-card {
+            background-color: #333838; border-radius: 15px; padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.3); 
+            cursor: pointer; position: relative; z-index: 1;
+        }
+        .date { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 15px; text-transform: uppercase; }
+        .exercise-list { display: flex; flex-direction: column; gap: 0; }
+        .exercise-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #444848;
+        }
+        .exercise-item:last-of-type { border-bottom: none; }
+        .exercise-name { font-size: 16px; font-weight: 500; color: #ffffff; flex: 1; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        .exercise-main-stats { font-size: 14px; font-weight: 400; color: #8a8278; text-align: right; white-space: nowrap; }
+        .more-exercises { text-align: center; color: #666; font-size: 14px; margin-top: 15px; letter-spacing: 1px; }
+        
+        .comment-overlay {
+            position: absolute; bottom: 8px; left: 10px; right: 10px; background-color: #1e2222;
+            border-left: 4px solid #FFA649; padding: 12px 15px; border-radius: 8px;
+            font-size: 14px; color: #FFA649; font-style: italic;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5); z-index: 5; pointer-events: none;
+            max-width: calc(100% - 20px); word-wrap: break-word;
+        }
+
+        .add-btn-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 390px; z-index: 50; }
+        .add-btn {
+            width: 100%; padding: 18px; background-color: #FFA649; color: #262B2B;
+            border: none; border-radius: 12px; font-family: 'Oswald', sans-serif;
+            font-size: 20px; font-weight: 700; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 166, 73, 0.3);
+        }
+        .add-btn:active { background-color: #e69540; }
+
+        .exercise-card {
+            background-color: #333838; border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); cursor: pointer; transition: 0.1s;
+        }
+        .exercise-card:active { background-color: #3a3f3f; }
+        .exercise-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #444848; }
+        .exercise-title-wrapper { display: flex; align-items: center; flex: 1; margin-right: 10px; }
+        
+        .progress-check {
+            width: 24px; height: 24px; background-color: transparent; color: transparent; 
+            border: 2px solid #555555; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+            font-weight: 700; margin-right: 10px; flex-shrink: 0; cursor: pointer; transition: 0.2s;
+        }
+        .progress-check.active { background-color: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 0 8px rgba(76, 175, 80, 0.4); }
+
+        .muscle-tag { font-size: 12px; font-weight: 500; color: #FFA649; background-color: rgba(255, 166, 73, 0.1); padding: 4px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+        
+        .sets-container { display: flex; flex-direction: column; }
+        .set-row { display: flex; align-items: center; padding: 8px 5px; border-bottom: 1px solid #2e3333; }
+        .set-row:last-child { border-bottom: none; }
+        .set-num { color: #555555; font-size: 13px; width: 20px; }
+        .set-reps { color: #b0a593; font-size: 15px; flex: 1; text-align: center; }
+        .set-weight { color: #FFA649; font-size: 16px; font-weight: 700; min-width: 65px; text-align: right; }
+        
+        .add-exercise-btn {
+            width: 100%; padding: 15px; background: transparent; border: 2px dashed #444848;
+            border-radius: 12px; color: #666666; font-family: 'Oswald', sans-serif;
+            font-size: 16px; text-transform: uppercase; cursor: pointer; margin-top: 10px;
+        }
+        .add-exercise-btn:active { border-color: #FFA649; color: #FFA649; }
+
+        .wo-comment-input {
+            width: 100%; background-color: #333838; color: #ffffff; border: 1px solid #444848;
+            border-radius: 10px; padding: 15px; font-family: 'Oswald', sans-serif; font-size: 16px; outline: none; margin-bottom: 20px;
+        }
+        .wo-comment-input::placeholder { color: #666; }
+        .wo-comment-input:focus { border-color: #FFA649; }
+
+        .delete-btn {
+            background: none; border: none; color: #ff4d4d; font-family: 'Oswald', sans-serif;
+            font-size: 14px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px;
+        }
+        .delete-btn:active { color: #ff1a1a; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { font-size: 14px; color: #8a8278; margin-bottom: 5px; text-transform: uppercase; }
+        .custom-input, .custom-select {
+            width: 100%; background-color: #333838; color: #ffffff; border: 1px solid #444848;
+            border-radius: 10px; padding: 15px; font-family: 'Oswald', sans-serif; font-size: 18px; outline: none;
+        }
+        .custom-input:focus, .custom-select:focus { border-color: #FFA649; }
+        .custom-select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23FFA649' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 15px center;
+        }
+        .sets-list { margin-top: 25px; margin-bottom: 15px; }
+        .sets-title { font-size: 16px; color: #8a8278; margin-bottom: 10px; text-transform: uppercase; }
+        .set-input-row { display: flex; align-items: center; background-color: #333838; border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid #444848; }
+        .set-input-reps, .set-input-weight {
+            background-color: #262B2B; border: none; color: #ffffff; font-family: 'Oswald', sans-serif;
+            font-size: 16px; padding: 8px; border-radius: 6px; text-align: center; outline: none;
+            -moz-appearance: textfield; appearance: textfield;
+        }
+        .set-input-reps::-webkit-outer-spin-button, .set-input-reps::-webkit-inner-spin-button, .set-input-weight::-webkit-outer-spin-button, .set-input-weight::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .set-input-reps { flex: 1; margin: 0 5px; }
+        .set-input-weight { width: 80px; margin-left: 5px; }
+        .kg-label { color: #FFA649; font-size: 14px; margin-left: 5px; flex-shrink: 0; }
+        .add-set-btn {
+            width: 100%; padding: 12px; background: transparent; border: 1px dashed #444848;
+            border-radius: 8px; color: #666666; font-family: 'Oswald', sans-serif;
+            font-size: 16px; text-transform: uppercase; cursor: pointer; margin-bottom: 30px;
+        }
+        .add-set-btn:active { border-color: #FFA649; color: #FFA649; }
+
+        .save-btn-container { position: fixed; bottom: 0; left: 0; right: 0; background-color: #262B2B; padding: 20px; display: flex; justify-content: center; z-index: 50;}
+        .save-btn {
+            width: 100%; max-width: 390px; padding: 18px; background-color: #FFA649; color: #262B2B;
+            border: none; border-radius: 12px; font-family: 'Oswald', sans-serif;
+            font-size: 20px; font-weight: 700; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .save-btn:active { background-color: #e69540; }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-main" class="screen active">
+        <div class="main-header">
+            <div class="main-header-left">
+                <div class="main-logo">Дневник</div>
+                <div class="tonnage-counter" id="total-tonnage">Поднято: 0 кг</div>
+            </div>
+            <div class="user-stats">
+                <span>123 кг</span>
+                <span>190 см</span>
+                <span>45 лет</span>
+            </div>
+        </div>
+        <main id="main-workouts-list"></main>
+    </div>
+    <div class="add-btn-container" id="btn-add-workout" style="display:none;">
+        <button class="add-btn" onclick="createNewWorkout()">+ Добавить тренировку</button>
+    </div>
+
+    <div id="screen-workout" class="screen">
+        <div class="workout-header">
+            <button class="back-btn" onclick="showScreen('screen-main')">←</button>
+            <div class="page-title" id="wo-date-title"></div>
+            <button class="delete-btn" onclick="deleteWorkout()">Удалить</button>
+        </div>
+        <input type="text" id="inp-wo-comment" class="wo-comment-input" placeholder="Комментарий к тренировке..." oninput="saveWorkoutComment()">
+        
+        <main id="wo-exercises-list"></main>
+        <button class="add-exercise-btn" onclick="openAddExercise()">+ Добавить упражнение</button>
+    </div>
+
+    <div id="screen-add-exercise" class="screen">
+        <div class="workout-header">
+            <button class="back-btn" onclick="showScreen('screen-workout')">←</button>
+            <div class="page-title" id="add-ex-page-title">Новое упражнение</div>
+        </div>
+        <main>
+            <div class="input-group">
+                <div class="input-label">Название упражнения</div>
+                <input type="text" id="inp-name" class="custom-input" placeholder="Например: Жим лежа">
+            </div>
+            <div class="input-group">
+                <div class="input-label">Целевая мышца</div>
+                <select id="inp-muscle" class="custom-select">
+                    <option value="" disabled selected>Выберите мышцу...</option>
+                    <option>Квадрицепс</option><option>Бицепс бедра</option><option>Ягодицы</option>
+                    <option>Грудь</option><option>Спина</option><option>Плечи</option>
+                    <option>Бицепс</option><option>Трицепс</option><option>Пресс</option><option>Икры</option>
+                </select>
+            </div>
+            <div class="sets-list" id="setsContainer">
+                <div class="sets-title">Подходы</div>
+            </div>
+            <button class="add-set-btn" onclick="addSetRow()">+ Добавить подход</button>
+        </main>
+        <div class="save-btn-container">
+            <button class="save-btn" onclick="saveExercise()">Сохранить</button>
+        </div>
+    </div>
+
+    <script>
+        let workouts;
+        let currentWorkoutId = null;
+        let editingExerciseIndex = null;
+
+        try {
+            const storedData = localStorage.getItem('gym_workouts');
+            workouts = storedData ? JSON.parse(storedData) : [];
+        } catch (e) { workouts = []; }
+
+        if (workouts.length === 0) {
+            workouts.push({
+                id: Date.now(), date: "21 мая 2024", 
+                comment: "Очень длинный комментарий, чтобы проверить как он будет вести себя на экране. Он должен вырасти вверх и перекрыть упражнения.",
+                exercises: [
+                    { name: "Приседания со штангой", muscle: "Квадрицепс", progress: true, sets: [{r:10, w:100}, {r:10, w:90}, {r:8, w:90}] },
+                    { name: "Жим ногами в тренажере", muscle: "Квадрицепс", progress: false, sets: [{r:12, w:150}, {r:12, w:150}, {r:10, w:160}] },
+                    { name: "Сгибания в тренажере", muscle: "Бицепс бедра", progress: false, sets: [{r:15, w:40}, {r:15, w:40}] },
+                    { name: "Разгибания в тренажере", muscle: "Квадрицепс", progress: false, sets: [{r:12, w:50}, {r:12, w:50}] }
+                ]
+            });
+            saveData();
+        }
+
+        function saveData() {
+            try { localStorage.setItem('gym_workouts', JSON.stringify(workouts)); } catch (e) {}
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-add-workout').style.display = id === 'screen-main' ? 'flex' : 'none';
+            if(id === 'screen-main') {
+                renderMainScreen();
+                updateTonnage();
+            }
+        }
+
+        // ЛОГИКА ПОДСЧЕТА ТОННАЖА
+        function updateTonnage() {
+            let totalKg = 0;
+            workouts.forEach(wo => {
+                wo.exercises.forEach(ex => {
+                    ex.sets.forEach(s => {
+                        totalKg += (s.w * s.r);
+                    });
+                });
+            });
+            // Красивое форматирование числа с пробелами (125 430)
+            const formattedKg = totalKg.toLocaleString('ru-RU');
+            document.getElementById('total-tonnage').innerText = `Поднято: ${formattedKg} кг`;
+        }
+
+        function renderMainScreen() {
+            const container = document.getElementById('main-workouts-list');
+            container.innerHTML = '';
+            workouts.forEach(wo => {
+                const div = document.createElement('div');
+                div.className = 'workout-container';
+                let commentHtml = wo.comment ? `<div class="comment-overlay">${wo.comment}</div>` : '';
+                let exHtml = '';
+                const limit = Math.min(wo.exercises.length, 3);
+                for(let i=0; i<limit; i++) {
+                    const ex = wo.exercises[i];
+                    const setsStr = ex.sets.length + 'x' + ex.sets[0].r + ', ' + getWeightsRange(ex.sets);
+                    exHtml += `<div class="exercise-item"><span class="exercise-name">${ex.name}</span><span class="exercise-main-stats">${setsStr}</span></div>`;
+                }
+                const moreHtml = wo.exercises.length > 3 ? `<div class="more-exercises">...еще ${wo.exercises.length - 3} упражнения</div>` : '';
+                div.innerHTML = `${commentHtml}<div class="workout-card" onclick="openWorkout(${wo.id})"><div class="date">${wo.date}</div><div class="exercise-list">${exHtml}</div>${moreHtml}</div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function getWeightsRange(sets) {
+            if(sets.length === 0) return '0 кг';
+            const weights = sets.map(s => s.w);
+            const min = Math.min(...weights); const max = Math.max(...weights);
+            return min === max ? `${min} кг` : `${max}-${min} кг`;
+        }
+
+        function openWorkout(id) {
+            currentWorkoutId = id;
+            const wo = workouts.find(w => w.id === id);
+            if(!wo) return;
+            document.getElementById('wo-date-title').innerText = wo.date;
+            document.getElementById('inp-wo-comment').value = wo.comment || '';
+            
+            const container = document.getElementById('wo-exercises-list');
+            container.innerHTML = '';
+            wo.exercises.forEach((ex, i) => {
+                let setsHtml = '';
+                ex.sets.forEach((s, j) => {
+                    const numStr = (j+1) < 10 ? '0' + (j+1) : (j+1);
+                    setsHtml += `<div class="set-row"><span class="set-num">${numStr}</span><span class="set-reps">${s.r}</span><span class="set-weight">${s.w} кг</span></div>`;
+                });
+                const checkClass = ex.progress ? 'active' : '';
+                container.innerHTML += `
+                    <div class="exercise-card" onclick="openEditExercise(${i})">
+                        <div class="exercise-top">
+                            <div class="exercise-title-wrapper">
+                                <div class="progress-check ${checkClass}" onclick="event.stopPropagation(); toggleProgress(${i})">✓</div>
+                                <span class="exercise-name">${ex.name}</span>
+                            </div>
+                            <span class="muscle-tag">${ex.muscle}</span>
+                        </div>
+                        <div class="sets-container">${setsHtml}</div>
+                    </div>`;
+            });
+            showScreen('screen-workout');
+        }
+
+        function deleteWorkout() {
+            if(confirm("Точно удалить всю тренировку? Возврата нет.")) {
+                workouts = workouts.filter(w => w.id !== currentWorkoutId);
+                saveData();
+                showScreen('screen-main');
+            }
+        }
+
+        function saveWorkoutComment() {
+            const wo = workouts.find(w => w.id === currentWorkoutId);
+            if(wo) {
+                wo.comment = document.getElementById('inp-wo-comment').value;
+                saveData();
+            }
+        }
+
+        function toggleProgress(exIndex) {
+            const wo = workouts.find(w => w.id === currentWorkoutId);
+            if(wo && wo.exercises[exIndex]) {
+                wo.exercises[exIndex].progress = !wo.exercises[exIndex].progress;
+                saveData();
+                openWorkout(currentWorkoutId);
+            }
+        }
+
+        function createNewWorkout() {
+            const now = new Date();
+            const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+            const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            const newWo = { id: Date.now(), date: dateStr, comment: "", exercises: [] };
+            workouts.unshift(newWo);
+            saveData();
+            openWorkout(newWo.id);
+        }
+
+        let setCount = 0;
+        
+        function openAddExercise() {
+            editingExerciseIndex = null;
+            document.getElementById('add-ex-page-title').innerText = "Новое упражнение";
+            document.getElementById('inp-name').value = '';
+            document.getElementById('inp-muscle').value = '';
+            document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
+            setCount = 0;
+            addSetRow();
+            showScreen('screen-add-exercise');
+        }
+
+        function openEditExercise(index) {
+            editingExerciseIndex = index;
+            document.getElementById('add-ex-page-title').innerText = "Редактирование";
+            const wo = workouts.find(w => w.id === currentWorkoutId);
+            const ex = wo.exercises[index];
+            
+            document.getElementById('inp-name').value = ex.name;
+            document.getElementById('inp-muscle').value = ex.muscle;
+            
+            document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
+            setCount = 0;
+            ex.sets.forEach(s => addSetRow(s.r, s.w));
+            
+            showScreen('screen-add-exercise');
+        }
+
+        function addSetRow(defR = '', defW = '') {
+            setCount++;
+            const container = document.getElementById('setsContainer');
+            const numStr = setCount < 10 ? '0' + setCount : setCount;
+            const newRow = document.createElement('div');
+            newRow.className = 'set-input-row';
+            newRow.innerHTML = `
+                <span class="set-num">${numStr}</span>
+                <input type="number" class="set-input-reps" placeholder="10" value="${defR}">
+                <input type="number" class="set-input-weight" placeholder="100" value="${defW}">
+                <span class="kg-label">кг</span>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function saveExercise() {
+            const name = document.getElementById('inp-name').value.trim();
+            const muscle = document.getElementById('inp-muscle').value;
+            if(!name || !muscle) { alert("Укажи название и выбери мышцу!"); return; }
+            
+            const rows = document.querySelectorAll('#setsContainer .set-input-row');
+            let sets = []; let isValid = true;
+            rows.forEach(row => {
+                const r = parseInt(row.querySelector('.set-input-reps').value);
+                const w = parseInt(row.querySelector('.set-input-weight').value);
+                if(isNaN(r) || isNaN(w)) { isValid = false; } else { sets.push({r, w}); }
+            });
+            if(!isValid || sets.length === 0) { alert("Заполни вес и повторения во всех подходах!"); return; }
+            
+            const wo = workouts.find(w => w.id === currentWorkoutId);
+            if(wo) {
+                if(editingExerciseIndex !== null) {
+                    const oldProgress = wo.exercises[editingExerciseIndex].progress || false;
+                    wo.exercises[editingExerciseIndex] = { name, muscle, progress: oldProgress, sets };
+                    editingExerciseIndex = null;
+                } else {
+                    wo.exercises.push({ name, muscle, progress: false, sets });
+                }
+                saveData();
+                openWorkout(currentWorkoutId);
+            }
+        }
+
+        renderMainScreen();
+        updateTonnage();
+        document.getElementById('btn-add-workout').style.display = 'flex';
+    </script>
+</body>
+</html>
