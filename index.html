@@ -21,19 +21,25 @@
         
         .main-header {
             position: absolute; top: 20px; left: 20px; right: 20px; 
-            display: flex; justify-content: space-between; align-items: flex-start; z-index: 20; gap: 10px;
+            display: flex; justify-content: space-between; align-items: stretch; z-index: 20;
         }
         .header-card {
-            background-color: #333838; padding: 15px; border-radius: 12px; 
+            background-color: #333838; padding: 15px 20px; border-radius: 12px; 
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: fit-content; /* Плашка заканчивается сразу за текстом */
+            display: flex; flex-direction: column; justify-content: center;
         }
-        .header-left { flex: 1; }
-        .main-logo { font-size: 24px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; }
-        .tonnage-counter { font-size: 13px; font-weight: 500; color: #FFA649; margin-top: 4px; }
+        .header-left .main-logo { font-size: 24px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+        .header-left .tonnage-counter { font-size: 13px; font-weight: 500; color: #FFA649; margin-top: 4px; white-space: nowrap; }
         
         .header-right { cursor: pointer; transition: transform 0.2s; }
         .header-right:active { transform: scale(0.95); }
-        .user-stats { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500; color: #b0a593; text-align: right; white-space: nowrap;}
+        
+        /* ЛЕСЕНКА ВАЛЕРА */
+        .user-stats { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500; color: #b0a593; text-align: right; white-space: nowrap; }
+        .stat-1 { padding-right: 0px; padding-left: 12px; } /* 45 лет (самая короткая, отступ слева больше) */
+        .stat-2 { padding-right: 0px; padding-left: 6px; }  /* 123 кг (средняя) */
+        .stat-3 { padding-right: 0px; padding-left: 0px; }  /* 190 см (самая длинная, прижата к правому краю) */
 
         #main-workouts-list { margin-top: 120px; }
 
@@ -197,9 +203,9 @@
             </div>
             <div class="header-card header-right" onclick="alert('Здесь будут замеры тела')">
                 <div class="user-stats">
-                    <span>45 лет</span>
-                    <span>123 кг</span>
-                    <span>190 см</span>
+                    <span class="stat-1">45 лет</span>
+                    <span class="stat-2">123 кг</span>
+                    <span class="stat-3">190 см</span>
                 </div>
             </div>
         </div>
