@@ -19,7 +19,6 @@
         .back-btn { color: #FFA649; font-size: 28px; text-decoration: none; font-weight: 700; cursor: pointer; background: none; border: none; font-family: 'Oswald'; }
         .page-title { font-size: 22px; font-weight: 700; color: #ffffff; text-transform: uppercase; flex: 1; }
         
-        /* НОВЫЙ ВЕРХНИЙ БЛОК */
         .main-header {
             position: absolute; top: 20px; left: 20px; right: 20px; 
             display: flex; justify-content: space-between; align-items: flex-start; z-index: 20; gap: 10px;
@@ -38,7 +37,6 @@
 
         #main-workouts-list { margin-top: 120px; }
 
-        /* АККОРДЕОН И КАРТОЧКИ */
         .workout-container { position: relative; margin-bottom: 20px; }
         .workout-card {
             background-color: #333838; border-radius: 15px; padding: 20px;
@@ -64,21 +62,18 @@
         .exercise-item:last-child { border-bottom: none; }
         .exercise-name { font-size: 15px; font-weight: 500; color: #ffffff; flex-shrink: 0; margin-right: 10px; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
         
-        /* НОВЫЕ СТАТИСТИКИ НА ГЛАВНОМ */
         .exercise-main-stats { 
             font-size: 13px; font-weight: 400; color: #8a8278; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            padding-right: 25px; /* Около 7 мм отступ справа для обрезки */
+            padding-right: 25px; 
         }
         .green-dot { width: 8px; height: 8px; background-color: #4CAF50; border-radius: 50%; margin-right: 6px; flex-shrink: 0; box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);}
 
         .more-exercises { text-align: center; color: #666; font-size: 14px; margin-top: 10px; letter-spacing: 1px; cursor: pointer; }
         
-        /* ЛОГИКА АККОРДЕОНА */
         .wo-full-list { display: none; margin-top: 15px; border-top: 1px solid #444848; padding-top: 10px;}
         .workout-card.expanded .wo-exercises-preview { display: none; }
         .workout-card.expanded .wo-full-list { display: flex; flex-direction: column; gap: 0; }
         .workout-card.expanded .more-exercises { display: none; }
-        .workout-card.expanded .comment-overlay { display: none; }
         
         .comment-overlay {
             position: absolute; bottom: 8px; left: 10px; right: 10px; background-color: #1e2222;
@@ -143,7 +138,6 @@
         }
         .delete-btn:active { color: #ff1a1a; }
 
-        /* КНОПКА УДАЛЕНИЯ УПРАЖНЕНИЯ */
         .delete-exercise-btn {
             width: 100%; padding: 15px; background: transparent; border: 2px dashed #ff4d4d;
             border-radius: 12px; color: #ff4d4d; font-family: 'Oswald', sans-serif;
@@ -300,17 +294,16 @@
         function updateTonnage() {
             let totalKg = 0;
             workouts.forEach(wo => { wo.exercises.forEach(ex => { ex.sets.forEach(s => { totalKg += (s.w * s.r); }); }); });
-            document.getElementById('total-tonnage').innerText = `Поднято: ${totalKg.toLocaleString('ru-RU')} кг`;
+            document.getElementById('total-tonnage').innerText = "Поднято: " + totalKg.toLocaleString('ru-RU') + " кг";
         }
 
-        // НОВЫЙ ФОРМАТ СТРОКИ (5x 10-10-8, 100-90 кг)
         function formatMainStats(sets) {
             if(!sets || sets.length === 0) return '';
             const reps = sets.map(s => s.r).join('-');
             const weights = sets.map(s => s.w);
             const minW = Math.min(...weights); const maxW = Math.max(...weights);
-            const wStr = minW === maxW ? `${minW}` : `${maxW}-${minW}`;
-            return `${sets.length}x ${reps}, ${wStr} кг`;
+            const wStr = minW === maxW ? minW : (maxW + '-' + minW);
+            return sets.length + 'x ' + reps + ', ' + wStr + ' кг';
         }
 
         function renderMainScreen() {
@@ -321,55 +314,41 @@
                 const div = document.createElement('div');
                 div.className = 'workout-container';
                 
-               let commentHtml = wo.comment ? '<div class="comment-overlay" id="wo-comment-${wo.id}">${wo.comment}</div>' : '';
+                let commentHtml = wo.comment ? '<div class="comment-overlay" id="wo-comment-' + wo.id + '">' + wo.comment + '</div>' : '';
                 
-                // Превью (первые 3)
                 let previewHtml = '<div class="wo-exercises-preview"><div class="exercise-list">';
                 const limit = Math.min(wo.exercises.length, 3);
                 for(let i=0; i<limit; i++) {
                     const ex = wo.exercises[i];
                     const dotHtml = ex.progress ? '<div class="green-dot"></div>' : '';
-                    previewHtml += `<div class="exercise-item"><span class="exercise-name">${ex.name}</span><div style="display:flex; align-items:center;">${dotHtml}<span class="exercise-main-stats">${formatMainStats(ex.sets)}</span></div></div>`;
+                    previewHtml += '<div class="exercise-item"><span class="exercise-name">' + ex.name + '</span><div style="display:flex; align-items:center;">' + dotHtml + '<span class="exercise-main-stats">' + formatMainStats(ex.sets) + '</span></div></div>';
                 }
                 previewHtml += '</div>';
-                const moreHtml = wo.exercises.length > 3 ? `<div class="more-exercises">...еще ${wo.exercises.length - 3} упражнения</div>` : '';
+                const moreHtml = wo.exercises.length > 3 ? '<div class="more-exercises">...еще ' + (wo.exercises.length - 3) + ' упражнения</div>' : '';
                 previewHtml += moreHtml + '</div>';
 
-                // Полный список (скрыт по умолчанию)
                 let fullListHtml = '<div class="wo-full-list"><div class="exercise-list">';
                 wo.exercises.forEach(ex => {
                     const dotHtml = ex.progress ? '<div class="green-dot"></div>' : '';
-                    fullListHtml += `<div class="exercise-item"><span class="exercise-name">${ex.name}</span><div style="display:flex; align-items:center;">${dotHtml}<span class="exercise-main-stats">${formatMainStats(ex.sets)}</span></div></div>`;
+                    fullListHtml += '<div class="exercise-item"><span class="exercise-name">' + ex.name + '</span><div style="display:flex; align-items:center;">' + dotHtml + '<span class="exercise-main-stats">' + formatMainStats(ex.sets) + '</span></div></div>';
                 });
                 fullListHtml += '</div></div>';
 
-                div.innerHTML = `
-                    ${commentHtml}
-                    <div class="workout-card" id="wo-card-${wo.id}">
-                        <div class="wo-top-row" onclick="toggleAccordion(${wo.id})">
-                            <div class="date">${wo.date}</div>
-                            <button class="pencil-btn" onclick="event.stopPropagation(); openWorkout(${wo.id})">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                            </button>
-                        </div>
-                        ${previewHtml}
-                        ${fullListHtml}
-                    </div>
-                `;
+                div.innerHTML = commentHtml + '<div class="workout-card" id="wo-card-' + wo.id + '"><div class="wo-top-row" onclick="toggleAccordion(' + wo.id + ')"><div class="date">' + wo.date + '</div><button class="pencil-btn" onclick="event.stopPropagation(); openWorkout(' + wo.id + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button></div>' + previewHtml + fullListHtml + '</div>';
                 container.appendChild(div);
             });
         }
 
         function toggleAccordion(id) {
-    const card = document.getElementById(`wo-card-${id}`);
-    const comment = document.getElementById(`wo-comment-${id}`);
-    if(card) {
-        card.classList.toggle('expanded');
-        if(comment) {
-            comment.style.display = card.classList.contains('expanded') ? 'none' : 'block';
+            const card = document.getElementById('wo-card-' + id);
+            const comment = document.getElementById('wo-comment-' + id);
+            if(card) {
+                card.classList.toggle('expanded');
+                if(comment) {
+                    comment.style.display = card.classList.contains('expanded') ? 'none' : 'block';
+                }
+            }
         }
-    }
-}
 
         function openWorkout(id) {
             currentWorkoutId = id;
@@ -384,20 +363,10 @@
                 let setsHtml = '';
                 ex.sets.forEach((s, j) => {
                     const numStr = (j+1) < 10 ? '0' + (j+1) : (j+1);
-                    setsHtml += `<div class="set-row"><span class="set-num">${numStr}</span><span class="set-reps">${s.r}</span><span class="set-weight">${s.w} кг</span></div>`;
+                    setsHtml += '<div class="set-row"><span class="set-num">' + numStr + '</span><span class="set-reps">' + s.r + '</span><span class="set-weight">' + s.w + ' кг</span></div>';
                 });
                 const checkClass = ex.progress ? 'active' : '';
-                container.innerHTML += `
-                    <div class="exercise-card" onclick="openEditExercise(${i})">
-                        <div class="exercise-top">
-                            <div class="exercise-title-wrapper">
-                                <div class="progress-check ${checkClass}" onclick="event.stopPropagation(); toggleProgress(${i})">✓</div>
-                                <span class="exercise-name">${ex.name}</span>
-                            </div>
-                            <span class="muscle-tag">${ex.muscle}</span>
-                        </div>
-                        <div class="sets-container">${setsHtml}</div>
-                    </div>`;
+                container.innerHTML += '<div class="exercise-card" onclick="openEditExercise(' + i + ')"><div class="exercise-top"><div class="exercise-title-wrapper"><div class="progress-check ' + checkClass + '" onclick="event.stopPropagation(); toggleProgress(' + i + ')">✓</div><span class="exercise-name">' + ex.name + '</span></div><span class="muscle-tag">' + ex.muscle + '</span></div><div class="sets-container">' + setsHtml + '</div></div>';
             });
             showScreen('screen-workout');
         }
@@ -427,7 +396,7 @@
         function createNewWorkout() {
             const now = new Date();
             const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
-            const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            const dateStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
             const newWo = { id: Date.now(), date: dateStr, comment: "", exercises: [] };
             workouts.unshift(newWo);
             saveData();
@@ -442,7 +411,7 @@
             document.getElementById('inp-name').value = '';
             document.getElementById('inp-muscle').value = '';
             document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
-            document.getElementById('delete-exercise-zone').innerHTML = ''; // Прячем кнопку удаления
+            document.getElementById('delete-exercise-zone').innerHTML = ''; 
             setCount = 0;
             addSetRow();
             showScreen('screen-add-exercise');
@@ -461,8 +430,7 @@
             setCount = 0;
             ex.sets.forEach(s => addSetRow(s.r, s.w));
             
-            // Показываем кнопку удаления
-            document.getElementById('delete-exercise-zone').innerHTML = `<button class="delete-exercise-btn" onclick="deleteExercise()">Удалить упражнение</button>`;
+            document.getElementById('delete-exercise-zone').innerHTML = '<button class="delete-exercise-btn" onclick="deleteExercise()">Удалить упражнение</button>';
             
             showScreen('screen-add-exercise');
         }
@@ -473,23 +441,20 @@
                 if(wo) {
                     wo.exercises.splice(editingExerciseIndex, 1);
                     saveData();
-                    openWorkout(currentWorkoutId); // Возвращаемся на экран тренировки
+                    openWorkout(currentWorkoutId); 
                 }
             }
         }
 
-        function addSetRow(defR = '', defW = '') {
+        function addSetRow(defR, defW) {
+            defR = defR || '';
+            defW = defW || '';
             setCount++;
             const container = document.getElementById('setsContainer');
             const numStr = setCount < 10 ? '0' + setCount : setCount;
             const newRow = document.createElement('div');
             newRow.className = 'set-input-row';
-            newRow.innerHTML = `
-                <span class="set-num">${numStr}</span>
-                <input type="number" class="set-input-reps" placeholder="10" value="${defR}">
-                <input type="number" class="set-input-weight" placeholder="100" value="${defW}">
-                <span class="kg-label">кг</span>
-            `;
+            newRow.innerHTML = '<span class="set-num">' + numStr + '</span><input type="number" class="set-input-reps" placeholder="10" value="' + defR + '"><input type="number" class="set-input-weight" placeholder="100" value="' + defW + '"><span class="kg-label">кг</span>';
             container.appendChild(newRow);
         }
 
