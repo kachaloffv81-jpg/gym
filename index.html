@@ -321,7 +321,7 @@
                 const div = document.createElement('div');
                 div.className = 'workout-container';
                 
-                let commentHtml = wo.comment ? `<div class="comment-overlay">${wo.comment}</div>` : '';
+               let commentHtml = wo.comment ? '<div class="comment-overlay" id="wo-comment-${wo.id}">${wo.comment}</div>' : '';
                 
                 // Превью (первые 3)
                 let previewHtml = '<div class="wo-exercises-preview"><div class="exercise-list">';
@@ -361,9 +361,15 @@
         }
 
         function toggleAccordion(id) {
-            const card = document.getElementById(`wo-card-${id}`);
-            if(card) card.classList.toggle('expanded');
+    const card = document.getElementById(`wo-card-${id}`);
+    const comment = document.getElementById(`wo-comment-${id}`);
+    if(card) {
+        card.classList.toggle('expanded');
+        if(comment) {
+            comment.style.display = card.classList.contains('expanded') ? 'none' : 'block';
         }
+    }
+}
 
         function openWorkout(id) {
             currentWorkoutId = id;
