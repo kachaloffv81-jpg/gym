@@ -19,43 +19,66 @@
         .back-btn { color: #FFA649; font-size: 28px; text-decoration: none; font-weight: 700; cursor: pointer; background: none; border: none; font-family: 'Oswald'; }
         .page-title { font-size: 22px; font-weight: 700; color: #ffffff; text-transform: uppercase; flex: 1; }
         
+        /* НОВЫЙ ВЕРХНИЙ БЛОК */
         .main-header {
             position: absolute; top: 20px; left: 20px; right: 20px; 
-            display: flex; justify-content: space-between; align-items: flex-start; z-index: 20;
+            display: flex; justify-content: space-between; align-items: flex-start; z-index: 20; gap: 10px;
         }
-        .main-header-left { display: flex; flex-direction: column; }
-        .main-logo { font-size: 26px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 2px; }
+        .header-card {
+            background-color: #333838; padding: 15px; border-radius: 12px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .header-left { flex: 1; }
+        .main-logo { font-size: 24px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1px; }
+        .tonnage-counter { font-size: 13px; font-weight: 500; color: #FFA649; margin-top: 4px; }
         
-        /* СЧЕТЧИК ТОННАЖА */
-        .tonnage-counter {
-            font-size: 14px; font-weight: 500; color: #FFA649; 
-            margin-top: 4px; letter-spacing: 0.5px;
-        }
+        .header-right { cursor: pointer; transition: transform 0.2s; }
+        .header-right:active { transform: scale(0.95); }
+        .user-stats { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500; color: #b0a593; text-align: right; white-space: nowrap;}
 
-        .user-stats {
-            background-color: #333838; padding: 10px 15px; border-radius: 10px; 
-            display: flex; flex-direction: column; gap: 4px; font-size: 14px; 
-            font-weight: 500; color: #b0a593; text-align: right;
-        }
+        #main-workouts-list { margin-top: 120px; }
 
-        #main-workouts-list { margin-top: 110px; }
-
-        .workout-container { position: relative; margin-bottom: 60px; }
+        /* АККОРДЕОН И КАРТОЧКИ */
+        .workout-container { position: relative; margin-bottom: 20px; }
         .workout-card {
             background-color: #333838; border-radius: 15px; padding: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.3); 
-            cursor: pointer; position: relative; z-index: 1;
+            position: relative; z-index: 1;
         }
-        .date { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 15px; text-transform: uppercase; }
+        .wo-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; cursor: pointer; }
+        .date { font-size: 20px; font-weight: 700; color: #ffffff; text-transform: uppercase; }
+        
+        .pencil-btn {
+            background: none; border: none; color: #E6CCB2; cursor: pointer; padding: 5px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; width: 35px; height: 35px; transition: 0.2s;
+        }
+        .pencil-btn:active { background-color: rgba(255, 166, 73, 0.2); color: #FFA649; }
+        .pencil-btn svg { width: 20px; height: 20px; }
+
         .exercise-list { display: flex; flex-direction: column; gap: 0; }
         .exercise-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #444848;
+            display: flex; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #444848;
         }
-        .exercise-item:last-of-type { border-bottom: none; }
-        .exercise-name { font-size: 16px; font-weight: 500; color: #ffffff; flex: 1; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
-        .exercise-main-stats { font-size: 14px; font-weight: 400; color: #8a8278; text-align: right; white-space: nowrap; }
-        .more-exercises { text-align: center; color: #666; font-size: 14px; margin-top: 15px; letter-spacing: 1px; }
+        .exercise-item:last-child { border-bottom: none; }
+        .exercise-name { font-size: 15px; font-weight: 500; color: #ffffff; flex-shrink: 0; margin-right: 10px; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        
+        /* НОВЫЕ СТАТИСТИКИ НА ГЛАВНОМ */
+        .exercise-main-stats { 
+            font-size: 13px; font-weight: 400; color: #8a8278; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            padding-right: 25px; /* Около 7 мм отступ справа для обрезки */
+        }
+        .green-dot { width: 8px; height: 8px; background-color: #4CAF50; border-radius: 50%; margin-right: 6px; flex-shrink: 0; box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);}
+
+        .more-exercises { text-align: center; color: #666; font-size: 14px; margin-top: 10px; letter-spacing: 1px; cursor: pointer; }
+        
+        /* ЛОГИКА АККОРДЕОНА */
+        .wo-full-list { display: none; margin-top: 15px; border-top: 1px solid #444848; padding-top: 10px;}
+        .workout-card.expanded .wo-exercises-preview { display: none; }
+        .workout-card.expanded .wo-full-list { display: flex; flex-direction: column; gap: 0; }
+        .workout-card.expanded .more-exercises { display: none; }
+        .workout-card.expanded .comment-overlay { display: none; }
         
         .comment-overlay {
             position: absolute; bottom: 8px; left: 10px; right: 10px; background-color: #1e2222;
@@ -63,6 +86,7 @@
             font-size: 14px; color: #FFA649; font-style: italic;
             box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5); z-index: 5; pointer-events: none;
             max-width: calc(100% - 20px); word-wrap: break-word;
+            transition: 0.2s;
         }
 
         .add-btn-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 390px; z-index: 50; }
@@ -119,6 +143,14 @@
         }
         .delete-btn:active { color: #ff1a1a; }
 
+        /* КНОПКА УДАЛЕНИЯ УПРАЖНЕНИЯ */
+        .delete-exercise-btn {
+            width: 100%; padding: 15px; background: transparent; border: 2px dashed #ff4d4d;
+            border-radius: 12px; color: #ff4d4d; font-family: 'Oswald', sans-serif;
+            font-size: 16px; text-transform: uppercase; cursor: pointer; margin-bottom: 30px; margin-top: 10px;
+        }
+        .delete-exercise-btn:active { background-color: rgba(255, 77, 77, 0.1); }
+
         .input-group { margin-bottom: 15px; }
         .input-label { font-size: 14px; color: #8a8278; margin-bottom: 5px; text-transform: uppercase; }
         .custom-input, .custom-select {
@@ -165,14 +197,16 @@
 
     <div id="screen-main" class="screen active">
         <div class="main-header">
-            <div class="main-header-left">
+            <div class="header-card header-left">
                 <div class="main-logo">Дневник</div>
                 <div class="tonnage-counter" id="total-tonnage">Поднято: 0 кг</div>
             </div>
-            <div class="user-stats">
-                <span>123 кг</span>
-                <span>190 см</span>
-                <span>45 лет</span>
+            <div class="header-card header-right" onclick="alert('Здесь будут замеры тела')">
+                <div class="user-stats">
+                    <span>45 лет</span>
+                    <span>123 кг</span>
+                    <span>190 см</span>
+                </div>
             </div>
         </div>
         <main id="main-workouts-list"></main>
@@ -216,6 +250,8 @@
                 <div class="sets-title">Подходы</div>
             </div>
             <button class="add-set-btn" onclick="addSetRow()">+ Добавить подход</button>
+            
+            <div id="delete-exercise-zone"></div>
         </main>
         <div class="save-btn-container">
             <button class="save-btn" onclick="saveExercise()">Сохранить</button>
@@ -235,12 +271,13 @@
         if (workouts.length === 0) {
             workouts.push({
                 id: Date.now(), date: "21 мая 2024", 
-                comment: "Очень длинный комментарий, чтобы проверить как он будет вести себя на экране. Он должен вырасти вверх и перекрыть упражнения.",
+                comment: "Очень длинный комментарий, чтобы проверить как он будет вести себя. Он должен вырасти вверх и перекрыть упражнения.",
                 exercises: [
                     { name: "Приседания со штангой", muscle: "Квадрицепс", progress: true, sets: [{r:10, w:100}, {r:10, w:90}, {r:8, w:90}] },
-                    { name: "Жим ногами в тренажере", muscle: "Квадрицепс", progress: false, sets: [{r:12, w:150}, {r:12, w:150}, {r:10, w:160}] },
-                    { name: "Сгибания в тренажере", muscle: "Бицепс бедра", progress: false, sets: [{r:15, w:40}, {r:15, w:40}] },
-                    { name: "Разгибания в тренажере", muscle: "Квадрицепс", progress: false, sets: [{r:12, w:50}, {r:12, w:50}] }
+                    { name: "Жим ногами в тренажере", muscle: "Квадрицепс", progress: false, sets: [{r:12, w:150}, {r:10, w:160}, {r:8, w:170}] },
+                    { name: "Сгибания в тренажере", muscle: "Бицепс бедра", progress: true, sets: [{r:15, w:40}, {r:12, w:45}, {r:10, w:50}] },
+                    { name: "Разгибания в тренажере", muscle: "Квадрицепс", progress: false, sets: [{r:12, w:50}, {r:12, w:50}] },
+                    { name: "Ягодичный мостик", muscle: "Ягодицы", progress: false, sets: [{r:20, w:60}, {r:20, w:60}, {r:15, w:70}] }
                 ]
             });
             saveData();
@@ -260,46 +297,72 @@
             }
         }
 
-        // ЛОГИКА ПОДСЧЕТА ТОННАЖА
         function updateTonnage() {
             let totalKg = 0;
-            workouts.forEach(wo => {
-                wo.exercises.forEach(ex => {
-                    ex.sets.forEach(s => {
-                        totalKg += (s.w * s.r);
-                    });
-                });
-            });
-            // Красивое форматирование числа с пробелами (125 430)
-            const formattedKg = totalKg.toLocaleString('ru-RU');
-            document.getElementById('total-tonnage').innerText = `Поднято: ${formattedKg} кг`;
+            workouts.forEach(wo => { wo.exercises.forEach(ex => { ex.sets.forEach(s => { totalKg += (s.w * s.r); }); }); });
+            document.getElementById('total-tonnage').innerText = `Поднято: ${totalKg.toLocaleString('ru-RU')} кг`;
+        }
+
+        // НОВЫЙ ФОРМАТ СТРОКИ (5x 10-10-8, 100-90 кг)
+        function formatMainStats(sets) {
+            if(!sets || sets.length === 0) return '';
+            const reps = sets.map(s => s.r).join('-');
+            const weights = sets.map(s => s.w);
+            const minW = Math.min(...weights); const maxW = Math.max(...weights);
+            const wStr = minW === maxW ? `${minW}` : `${maxW}-${minW}`;
+            return `${sets.length}x ${reps}, ${wStr} кг`;
         }
 
         function renderMainScreen() {
             const container = document.getElementById('main-workouts-list');
             container.innerHTML = '';
+            
             workouts.forEach(wo => {
                 const div = document.createElement('div');
                 div.className = 'workout-container';
+                
                 let commentHtml = wo.comment ? `<div class="comment-overlay">${wo.comment}</div>` : '';
-                let exHtml = '';
+                
+                // Превью (первые 3)
+                let previewHtml = '<div class="wo-exercises-preview"><div class="exercise-list">';
                 const limit = Math.min(wo.exercises.length, 3);
                 for(let i=0; i<limit; i++) {
                     const ex = wo.exercises[i];
-                    const setsStr = ex.sets.length + 'x' + ex.sets[0].r + ', ' + getWeightsRange(ex.sets);
-                    exHtml += `<div class="exercise-item"><span class="exercise-name">${ex.name}</span><span class="exercise-main-stats">${setsStr}</span></div>`;
+                    const dotHtml = ex.progress ? '<div class="green-dot"></div>' : '';
+                    previewHtml += `<div class="exercise-item"><span class="exercise-name">${ex.name}</span><div style="display:flex; align-items:center;">${dotHtml}<span class="exercise-main-stats">${formatMainStats(ex.sets)}</span></div></div>`;
                 }
+                previewHtml += '</div>';
                 const moreHtml = wo.exercises.length > 3 ? `<div class="more-exercises">...еще ${wo.exercises.length - 3} упражнения</div>` : '';
-                div.innerHTML = `${commentHtml}<div class="workout-card" onclick="openWorkout(${wo.id})"><div class="date">${wo.date}</div><div class="exercise-list">${exHtml}</div>${moreHtml}</div>`;
+                previewHtml += moreHtml + '</div>';
+
+                // Полный список (скрыт по умолчанию)
+                let fullListHtml = '<div class="wo-full-list"><div class="exercise-list">';
+                wo.exercises.forEach(ex => {
+                    const dotHtml = ex.progress ? '<div class="green-dot"></div>' : '';
+                    fullListHtml += `<div class="exercise-item"><span class="exercise-name">${ex.name}</span><div style="display:flex; align-items:center;">${dotHtml}<span class="exercise-main-stats">${formatMainStats(ex.sets)}</span></div></div>`;
+                });
+                fullListHtml += '</div></div>';
+
+                div.innerHTML = `
+                    ${commentHtml}
+                    <div class="workout-card" id="wo-card-${wo.id}">
+                        <div class="wo-top-row" onclick="toggleAccordion(${wo.id})">
+                            <div class="date">${wo.date}</div>
+                            <button class="pencil-btn" onclick="event.stopPropagation(); openWorkout(${wo.id})">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                            </button>
+                        </div>
+                        ${previewHtml}
+                        ${fullListHtml}
+                    </div>
+                `;
                 container.appendChild(div);
             });
         }
 
-        function getWeightsRange(sets) {
-            if(sets.length === 0) return '0 кг';
-            const weights = sets.map(s => s.w);
-            const min = Math.min(...weights); const max = Math.max(...weights);
-            return min === max ? `${min} кг` : `${max}-${min} кг`;
+        function toggleAccordion(id) {
+            const card = document.getElementById(`wo-card-${id}`);
+            if(card) card.classList.toggle('expanded');
         }
 
         function openWorkout(id) {
@@ -343,10 +406,7 @@
 
         function saveWorkoutComment() {
             const wo = workouts.find(w => w.id === currentWorkoutId);
-            if(wo) {
-                wo.comment = document.getElementById('inp-wo-comment').value;
-                saveData();
-            }
+            if(wo) { wo.comment = document.getElementById('inp-wo-comment').value; saveData(); }
         }
 
         function toggleProgress(exIndex) {
@@ -376,6 +436,7 @@
             document.getElementById('inp-name').value = '';
             document.getElementById('inp-muscle').value = '';
             document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
+            document.getElementById('delete-exercise-zone').innerHTML = ''; // Прячем кнопку удаления
             setCount = 0;
             addSetRow();
             showScreen('screen-add-exercise');
@@ -394,7 +455,21 @@
             setCount = 0;
             ex.sets.forEach(s => addSetRow(s.r, s.w));
             
+            // Показываем кнопку удаления
+            document.getElementById('delete-exercise-zone').innerHTML = `<button class="delete-exercise-btn" onclick="deleteExercise()">Удалить упражнение</button>`;
+            
             showScreen('screen-add-exercise');
+        }
+
+        function deleteExercise() {
+            if(confirm("Удалить это упражнение?")) {
+                const wo = workouts.find(w => w.id === currentWorkoutId);
+                if(wo) {
+                    wo.exercises.splice(editingExerciseIndex, 1);
+                    saveData();
+                    openWorkout(currentWorkoutId); // Возвращаемся на экран тренировки
+                }
+            }
         }
 
         function addSetRow(defR = '', defW = '') {
