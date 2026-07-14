@@ -19,7 +19,6 @@
         .back-btn { color: #FFA649; font-size: 28px; text-decoration: none; font-weight: 700; cursor: pointer; background: none; border: none; font-family: 'Oswald'; }
         .page-title { font-size: 22px; font-weight: 700; color: #ffffff; text-transform: uppercase; flex: 1; }
         
-        /* НОВЫЙ ВЕРХНИЙ ДАШБОРД */
         .main-header {
             position: absolute; top: 20px; left: 20px; right: 20px; 
             display: flex; justify-content: space-between; align-items: stretch; z-index: 20; gap: 10px;
@@ -27,19 +26,14 @@
         .header-card {
             background-color: #333838; padding: 15px 10px; border-radius: 12px; 
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.3);
-            flex: 1; /* Делает все 3 плашки абсолютно одинаковыми по ширине */
-            cursor: pointer;
-            transition: transform 0.2s;
-            position: relative;
+            flex: 1; cursor: pointer; transition: transform 0.2s; position: relative;
         }
         .header-card:active { transform: scale(0.96); }
 
-        /* Левая колонка */
         .col-left { display: flex; flex-direction: column; justify-content: center; text-align: center; }
         .main-logo { font-size: 20px; font-weight: 700; color: #ffffff; text-transform: uppercase; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .tonnage-counter { font-size: 11px; font-weight: 500; color: #FFA649; margin-top: 4px; white-space: nowrap; }
         
-        /* Выпадающее меню пользователей */
         .user-menu {
             display: none; position: absolute; top: 105%; left: 0; right: 0; background-color: #3a3f3f;
             border-radius: 0 0 12px 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); z-index: 100; overflow: hidden;
@@ -50,23 +44,18 @@
         .user-menu-item.add-user { color: #FFA649; }
         .user-menu-item.active-user { color: #ffffff; background-color: rgba(255, 166, 73, 0.1); }
 
-        /* Центральная колонка */
         .col-center { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .stats-icon { font-size: 20px; margin-bottom: 4px; }
         .stats-text { font-size: 13px; color: #8a8278; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Правая колонка и ЛЕСЕНКА */
         .col-right { display: flex; flex-direction: column; justify-content: center; }
         .user-stats { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500; color: #b0a593; text-align: left; white-space: nowrap; }
-        
-        /* Лесенка (Вариант Б): Левый край ровный, правый ступенькой + увеличивающийся зазор */
-        .stat-1 { padding-right: 0px; }    /* 45 лет (самая короткая, не нужна подвижка) */
-        .stat-2 { padding-right: 12px; }   /* 123  кг (средняя подвижка вправо) */
-        .stat-3 { padding-right: 24px; }   /* 190    см (максимальная подвижка вправо) */
+        .stat-1 { padding-right: 0px; }    
+        .stat-2 { padding-right: 12px; }   
+        .stat-3 { padding-right: 24px; }   
 
         #main-workouts-list { margin-top: 120px; }
 
-        /* КАРТОЧКИ И АККОРДЕОН */
         .workout-container { position: relative; margin-bottom: 20px; }
         .workout-card {
             background-color: #333838; border-radius: 15px; padding: 20px;
@@ -83,44 +72,34 @@
         .pencil-btn svg { width: 20px; height: 20px; }
 
         .exercise-list { display: flex; flex-direction: column; gap: 0; }
-        
-        /* НОВАЯ СТРОКА УПРАЖНЕНИЯ (Столбцы и 4мм зазор) */
         .exercise-item {
             display: flex; align-items: center;
             padding: 10px 0; border-bottom: 1px solid #444848;
-            gap: 20px; /* Ровно 4мм буферная зона */
+            gap: 20px; 
         }
         .exercise-item:last-child { border-bottom: none; }
-        
         .exercise-name { 
             font-size: 15px; font-weight: 500; color: #ffffff; 
             flex-shrink: 0; width: 40%; min-width: 0;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Обычное обрезание справа */
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
         }
-        
-        /* Обертка для точки и цифр */
         .exercise-stats-wrapper {
             display: flex; align-items: center;
             flex: 1; min-width: 0; justify-content: flex-end;
         }
         .green-dot { width: 8px; height: 8px; background-color: #4CAF50; border-radius: 50%; margin-right: 6px; flex-shrink: 0; box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);}
 
-        /* МАГИЯ ОБРАТНОГО ОБРЕЗАНИЯ (Съедается слева, вес остается справа) */
         .exercise-main-stats { 
             font-size: 13px; font-weight: 400; color: #8a8278; 
             min-width: 0; flex: 1;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            direction: rtl; /* Заставляет текст прижиматься к правому краю */
-            text-align: right;
+            direction: rtl; text-align: right;
         }
         .exercise-main-stats span {
-            direction: ltr; /* Возвращает цифры в нормальное чтение, чтобы 100 не превратилось в 001 */
-            unicode-bidi: bidi-override; 
-            display: inline-block;
+            direction: ltr; unicode-bidi: bidi-override; display: inline-block;
         }
 
         .more-exercises { text-align: center; color: #666; font-size: 14px; margin-top: 10px; letter-spacing: 1px; cursor: pointer; }
-        
         .wo-full-list { display: none; margin-top: 15px; border-top: 1px solid #444848; padding-top: 10px;}
         .workout-card.expanded .wo-exercises-preview { display: none; }
         .workout-card.expanded .wo-full-list { display: flex; flex-direction: column; gap: 0; }
@@ -143,7 +122,6 @@
         }
         .add-btn:active { background-color: #e69540; }
 
-        /* ЭКРАН ТРЕНИРОВКИ */
         .exercise-card {
             background-color: #333838; border-radius: 12px; padding: 15px; margin-bottom: 15px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); cursor: pointer; transition: 0.1s;
@@ -151,7 +129,6 @@
         .exercise-card:active { background-color: #3a3f3f; }
         .exercise-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #444848; }
         .exercise-title-wrapper { display: flex; align-items: center; flex: 1; margin-right: 10px; }
-        
         .progress-check {
             width: 24px; height: 24px; background-color: transparent; color: transparent; 
             border: 2px solid #555555; border-radius: 50%;
@@ -159,41 +136,33 @@
             font-weight: 700; margin-right: 10px; flex-shrink: 0; cursor: pointer; transition: 0.2s;
         }
         .progress-check.active { background-color: #4CAF50; color: white; border-color: #4CAF50; box-shadow: 0 0 8px rgba(76, 175, 80, 0.4); }
-
         .muscle-tag { font-size: 12px; font-weight: 500; color: #FFA649; background-color: rgba(255, 166, 73, 0.1); padding: 4px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
-        
         .sets-container { display: flex; flex-direction: column; }
         .set-row { display: flex; align-items: center; padding: 8px 5px; border-bottom: 1px solid #2e3333; }
         .set-row:last-child { border-bottom: none; }
         .set-num { color: #555555; font-size: 13px; width: 20px; }
         .set-reps { color: #b0a593; font-size: 15px; flex: 1; text-align: center; }
         .set-weight { color: #FFA649; font-size: 16px; font-weight: 700; min-width: 65px; text-align: right; }
-        
         .add-exercise-btn {
             width: 100%; padding: 15px; background: transparent; border: 2px dashed #444848;
             border-radius: 12px; color: #666666; font-family: 'Oswald', sans-serif;
             font-size: 16px; text-transform: uppercase; cursor: pointer; margin-top: 10px;
         }
         .add-exercise-btn:active { border-color: #FFA649; color: #FFA649; }
-
         .wo-comment-input {
             width: 100%; background-color: #333838; color: #ffffff; border: 1px solid #444848;
             border-radius: 10px; padding: 15px; font-family: 'Oswald', sans-serif; font-size: 16px; outline: none; margin-bottom: 20px;
         }
         .wo-comment-input::placeholder { color: #666; }
         .wo-comment-input:focus { border-color: #FFA649; }
-
         .delete-btn { background: none; border: none; color: #ff4d4d; font-family: 'Oswald', sans-serif; font-size: 14px; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
         .delete-btn:active { color: #ff1a1a; }
-
         .delete-exercise-btn {
             width: 100%; padding: 15px; background: transparent; border: 2px dashed #ff4d4d;
             border-radius: 12px; color: #ff4d4d; font-family: 'Oswald', sans-serif;
             font-size: 16px; text-transform: uppercase; cursor: pointer; margin-bottom: 30px; margin-top: 10px;
         }
         .delete-exercise-btn:active { background-color: rgba(255, 77, 77, 0.1); }
-
-        /* ЭКРАН ДОБАВЛЕНИЯ */
         .input-group { margin-bottom: 15px; }
         .input-label { font-size: 14px; color: #8a8278; margin-bottom: 5px; text-transform: uppercase; }
         .custom-input, .custom-select {
@@ -224,7 +193,6 @@
             font-size: 16px; text-transform: uppercase; cursor: pointer; margin-bottom: 30px;
         }
         .add-set-btn:active { border-color: #FFA649; color: #FFA649; }
-
         .save-btn-container { position: fixed; bottom: 0; left: 0; right: 0; background-color: #262B2B; padding: 20px; display: flex; justify-content: center; z-index: 50;}
         .save-btn {
             width: 100%; max-width: 390px; padding: 18px; background-color: #FFA649; color: #262B2B;
@@ -239,7 +207,6 @@
 
     <div id="screen-main" class="screen active">
         <div class="main-header">
-            <!-- ЛЕВАЯ ПЛАШКА: ПОЛЬЗОВАТЕЛИ -->
             <div class="header-card col-left" onclick="toggleUserMenu()">
                 <div class="main-logo">Валера К.</div>
                 <div class="tonnage-counter" id="total-tonnage">0 кг подн.</div>
@@ -250,14 +217,10 @@
                     <div class="user-menu-item add-user">+ Добавить</div>
                 </div>
             </div>
-            
-            <!-- ЦЕНТРАЛЬНАЯ ПЛАШКА: СТАТИСТИКА -->
             <div class="header-card col-center" onclick="alert('Статистика в разработке')">
                 <div class="stats-icon">📊</div>
                 <div class="stats-text">Статистика</div>
             </div>
-            
-            <!-- ПРАВАЯ ПЛАШКА: ПАРАМЕТРЫ -->
             <div class="header-card col-right" onclick="alert('Здесь будут замеры тела и редактирование параметров')">
                 <div class="user-stats">
                     <span class="stat-1">45 лет</span>
@@ -346,13 +309,10 @@
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-add-workout').style.display = id === 'screen-main' ? 'flex' : 'none';
             if(id === 'screen-main') { renderMainScreen(); updateTonnage(); }
-            // Закрываем меню пользователей при переходе на другой экран
             document.getElementById('user-menu').classList.remove('active');
         }
 
-        function toggleUserMenu() {
-            document.getElementById('user-menu').classList.toggle('active');
-        }
+        function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('active'); }
 
         function updateTonnage() {
             let totalKg = 0;
@@ -371,19 +331,16 @@
 
         function generateExerciseItemHTML(ex) {
             const dotHtml = ex.progress ? '<div class="green-dot"></div>' : '';
-            // Оборачиваем текст в span для корректной работы RTL-обрезания
             return '<div class="exercise-item"><span class="exercise-name">' + ex.name + '</span><div class="exercise-stats-wrapper">' + dotHtml + '<div class="exercise-main-stats"><span>' + formatMainStats(ex.sets) + '</span></div></div></div>';
         }
 
         function renderMainScreen() {
             const container = document.getElementById('main-workouts-list');
             container.innerHTML = '';
-            
             workouts.forEach(wo => {
                 const div = document.createElement('div');
                 div.className = 'workout-container';
                 let commentHtml = wo.comment ? '<div class="comment-overlay" id="wo-comment-' + wo.id + '">' + wo.comment + '</div>' : '';
-                
                 let previewHtml = '<div class="wo-exercises-preview"><div class="exercise-list">';
                 const limit = Math.min(wo.exercises.length, 3);
                 for(let i=0; i<limit; i++) { previewHtml += generateExerciseItemHTML(wo.exercises[i]); }
@@ -469,4 +426,22 @@
             if(!isValid || sets.length === 0) { alert("Заполни вес и повторения во всех подходах!"); return; }
             const wo = workouts.find(w => w.id === currentWorkoutId);
             if(wo) {
-                if(editingExerciseIndex !== null) { const oldProgress = wo.exercises[editingExerciseIndex].progress || false; wo.exercises[editingExerciseIndex] = { name, muscle, progress: oldProgress, sets }; editingExerciseIndex = null;
+                if(editingExerciseIndex !== null) {
+                    const oldProgress = wo.exercises[editingExerciseIndex].progress || false;
+                    wo.exercises[editingExerciseIndex] = { name, muscle, progress: oldProgress, sets };
+                    editingExerciseIndex = null;
+                } else {
+                    wo.exercises.push({ name, muscle, progress: false, sets });
+                }
+                saveData();
+                openWorkout(currentWorkoutId);
+            }
+        }
+
+        // ИНИЦИАЛИЗАЦИЯ
+        renderMainScreen();
+        updateTonnage();
+        document.getElementById('btn-add-workout').style.display = 'flex';
+    </script>
+</body>
+</html>
