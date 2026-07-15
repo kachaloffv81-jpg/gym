@@ -64,11 +64,9 @@
         .step-bar-2 { height: 65%; }
         .step-bar-3 { height: 100%; }
 
-        .col-right { display: flex; flex-direction: column; justify-content: center; }
-        .user-stats { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500; color: #b0a593; text-align: left; white-space: nowrap; }
-        .stat-1 { padding-right: 0px; }    
-        .stat-2 { padding-right: 12px; }   
-        .stat-3 { padding-right: 24px; }   
+        /* Правая плашка с замерами */
+        .col-right { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .user-stats { display: flex; flex-direction: column; gap: 2px; font-size: 14px; font-weight: 500; color: #ffffff; }
 
         #main-workouts-list { margin-top: 120px; }
 
@@ -325,9 +323,9 @@
             <!-- Правая плашка замеров -->
             <div class="header-card col-right" onclick="showScreen('screen-measurements')">
                 <div class="user-stats">
-                    <span class="stat-1" id="main-age">45 лет</span>
-                    <span class="stat-2" id="main-weight">123 кг</span>
-                    <span class="stat-3" id="main-height">190 см</span>
+                    <span id="main-age">45 лет</span>
+                    <span id="main-weight">123 кг</span>
+                    <span id="main-height">190 см</span>
                 </div>
             </div>
         </div>
