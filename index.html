@@ -459,6 +459,11 @@
             display: none; margin-top: 15px; border-top: 1px solid #444848; padding-top: 12px;
         }
         .strength-card.expanded .strength-history-dropdown { display: block; }
+        #screen-add-exercise { padding-bottom: 180px; }
+        .prev-result {
+            margin: -5px 0 15px; padding: 10px 12px; border-radius: 10px; cursor: pointer;
+            background-color: rgba(255,166,73,0.1); color: #FFA649; font-size: 14px; border: 1px dashed #FFA649;
+        }
     </style>
 </head>
 <body>
@@ -479,6 +484,7 @@
         <button class="rest-timer-stop" onclick="stopRestTimer()">✕</button>
     </div>
 
+    <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="importData(this)">
     <div class="toast" id="toast"></div>
 
     <div id="screen-main" class="screen active">
@@ -491,6 +497,7 @@
                     <div id="users-list-container"></div>
                     <div class="user-menu-item add-user" onclick="event.stopPropagation(); createNewUser()">+ Добавить</div>
                     <div class="user-menu-item export-item" onclick="event.stopPropagation(); exportData()">↓ Экспорт данных</div>
+                    <div class="user-menu-item export-item" onclick="event.stopPropagation(); document.getElementById('import-file').click()">↑ Импорт данных</div>
                 </div>
             </div>
             <div class="header-card col-center" onclick="showScreen('screen-stats')">
@@ -545,6 +552,7 @@
                     autocomplete="off" oninput="onExerciseNameInput()" onfocus="onExerciseNameInput()">
                 <div class="autocomplete-list" id="autocomplete-list" style="display:none;"></div>
             </div>
+            <div class="prev-result" id="prev-result" style="display:none" onclick="fillFromPrev()"></div>
             <div class="input-group">
                 <div class="input-label">Целевая мышца</div>
                 <select id="inp-muscle" class="custom-select">
@@ -560,7 +568,12 @@
             <button class="add-set-btn" onclick="addSetRow()">+ Добавить подход</button>
             <div id="delete-exercise-zone"></div>
         </main>
-        <div class="save-btn-container">
+        <div class="save-btn-container" style="flex-direction:column;align-items:center;gap:10px;">
+            <div class="timer-btn-row" style="width:100%;max-width:390px;margin:0;">
+                <button class="timer-launch-btn" onclick="startRestTimer(60)">⏱ 1 мин</button>
+                <button class="timer-launch-btn" onclick="startRestTimer(90)">⏱ 1:30</button>
+                <button class="timer-launch-btn" onclick="startRestTimer(120)">⏱ 2 мин</button>
+            </div>
             <button class="save-btn" onclick="saveExercise()">Сохранить</button>
         </div>
     </div>
@@ -716,6 +729,9 @@
     </div>
 
     <script>
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
         let users = [];
         let activeUserId = null;
         let workouts = [];
@@ -723,6 +739,16 @@
         let measurements = {};
 
         function initApp() {
+            try {
+                if (!localStorage.getItem('gym_backup_v1')) {
+                    const b = {};
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.startsWith('gym_')) b[k] = localStorage.getItem(k);
+                    }
+                    localStorage.setItem('gym_backup_v1', JSON.stringify(b));
+                }
+            } catch(e) {}
             try {
                 const storedUsers = localStorage.getItem('gym_users_list');
                 users = storedUsers ? JSON.parse(storedUsers) : [];
@@ -819,14 +845,19 @@
             const container = document.getElementById('users-list-container');
             container.innerHTML = '';
             users.forEach(u => {
-                const isItemActive = u.id === activeUserId;
                 const item = document.createElement('div');
-                item.className = `user-menu-item ${isItemActive ? 'active-user' : ''}`;
+                item.className = 'user-menu-item' + (u.id === activeUserId ? ' active-user' : '');
                 item.onclick = () => selectUser(u.id);
-                const deleteBtnHtml = users.length > 1
-                    ? `<span class="delete-user-btn" onclick="event.stopPropagation(); deleteUser('${u.id}', '${u.name}')">×</span>`
-                    : '';
-                item.innerHTML = `<span>${u.name}</span>${deleteBtnHtml}`;
+                const label = document.createElement('span');
+                label.textContent = u.name;
+                item.appendChild(label);
+                if (users.length > 1) {
+                    const del = document.createElement('span');
+                    del.className = 'delete-user-btn';
+                    del.textContent = '×';
+                    del.onclick = e => { e.stopPropagation(); deleteUser(u.id, u.name); };
+                    item.appendChild(del);
+                }
                 container.appendChild(item);
             });
         }
@@ -881,6 +912,34 @@
             document.getElementById('user-menu').classList.remove('active');
         }
 
+        function importData(input) {
+            const file = input.files[0];
+            input.value = '';
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const d = JSON.parse(reader.result);
+                    if (!Array.isArray(d.workouts)) throw new Error('bad');
+                    const u = users.find(x => x.id === activeUserId);
+                    if (!confirm('Добавить ' + d.workouts.length + ' тренировок из файла в профиль «' + (u ? u.name : '') + '»? Существующие данные не пострадают.')) return;
+                    const ids = new Set(workouts.map(w => w.id));
+                    d.workouts.forEach(w => { if (!ids.has(w.id)) workouts.push(w); });
+                    if (Array.isArray(d.measurementsHistory)) {
+                        const mids = new Set(measurementsHistory.map(m => m.id));
+                        d.measurementsHistory.forEach(m => { if (!mids.has(m.id)) measurementsHistory.push(m); });
+                        measurementsHistory.sort((a, b) => a.id - b.id);
+                        measurements = measurementsHistory[measurementsHistory.length - 1];
+                        saveMeasurementsHistory();
+                    }
+                    saveData();
+                    showScreen('screen-main');
+                    showToast('Данные импортированы!');
+                } catch(e) { showToast('Не удалось прочитать файл', 'error'); }
+            };
+            reader.readAsText(file);
+        }
+
         let currentWorkoutId = null;
         let editingExerciseIndex = null;
 
@@ -889,6 +948,9 @@
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-add-workout').style.display = id === 'screen-main' ? 'flex' : 'none';
             if (id === 'screen-main') {
+                const before = workouts.length;
+                workouts = workouts.filter(w => (w.exercises && w.exercises.length) || (w.comment && w.comment.trim()));
+                if (workouts.length !== before) saveData();
                 renderWorkoutsList();
                 updateTonnage();
                 updateMainHeaderStats();
@@ -952,7 +1014,7 @@
                 const tonnage = calcWorkoutTonnage(wo);
                 const tonnageText = tonnage >= 1000 ? (tonnage / 1000).toFixed(1) + ' т' : tonnage + ' кг';
 
-                let commentHtml = wo.comment ? `<div class="comment-overlay" id="wo-comment-${wo.id}">${wo.comment}</div>` : '';
+                let commentHtml = wo.comment ? `<div class="comment-overlay" id="wo-comment-${wo.id}">${esc(wo.comment)}</div>` : '';
 
                 let previewHtml = '<div class="wo-exercises-preview"><div class="exercise-list">';
                 const limit = Math.min(wo.exercises.length, 3);
@@ -975,7 +1037,7 @@
                     <div class="workout-card" id="wo-card-${wo.id}">
                         <div class="wo-top-row" onclick="toggleAccordion(${wo.id})">
                             <div class="wo-top-left">
-                                <div class="date">${wo.date}</div>
+                                <div class="date">${esc(wo.date)}</div>
                                 <div class="wo-tonnage-badge">⚡ ${tonnageText}</div>
                             </div>
                             <button class="pencil-btn" onclick="event.stopPropagation(); openWorkout(${wo.id})">
@@ -1064,9 +1126,9 @@
                         <div class="exercise-top">
                             <div class="exercise-title-wrapper">
                                 <div class="progress-check ${checkClass}" onclick="event.stopPropagation(); toggleProgress(${i})">✓</div>
-                                <span class="exercise-name">${ex.name}</span>
+                                <span class="exercise-name">${esc(ex.name)}</span>
                             </div>
-                            <span class="muscle-tag">${ex.muscle}</span>
+                            <span class="muscle-tag">${esc(ex.muscle)}</span>
                         </div>
                         <div class="sets-container">${setsHtml}</div>
                     </div>`;
@@ -1115,6 +1177,7 @@
             document.getElementById('inp-muscle').value = '';
             document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
             document.getElementById('delete-exercise-zone').innerHTML = '';
+            updatePrevResult();
             setCount = 0;
             addSetRow();
             showScreen('screen-add-exercise');
@@ -1130,6 +1193,7 @@
             document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
             setCount = 0;
             ex.sets.forEach(s => addSetRow(s.r, s.w));
+            updatePrevResult();
             document.getElementById('delete-exercise-zone').innerHTML =
                 '<button class="delete-exercise-btn" onclick="deleteExercise()">Удалить упражнение</button>';
             showScreen('screen-add-exercise');
@@ -1219,6 +1283,32 @@
             }
         }
 
+        let prevSets = null;
+        function updatePrevResult() {
+            const box = document.getElementById('prev-result');
+            const n = document.getElementById('inp-name').value.trim().toLowerCase();
+            prevSets = null;
+            box.style.display = 'none';
+            if (!n) return;
+            const sorted = [...workouts].filter(w => w.id !== currentWorkoutId).sort((a, b) => b.id - a.id);
+            for (const wo of sorted) {
+                const ex = wo.exercises.find(e => e.name && e.name.toLowerCase() === n);
+                if (ex) {
+                    prevSets = ex.sets;
+                    box.innerHTML = 'Прошлый раз (' + esc(wo.date) + '): ' + esc(formatMainStats(ex.sets)) + ' <b>· подставить</b>';
+                    box.style.display = 'block';
+                    return;
+                }
+            }
+        }
+        function fillFromPrev() {
+            if (!prevSets) return;
+            document.getElementById('setsContainer').innerHTML = '<div class="sets-title">Подходы</div>';
+            setCount = 0;
+            prevSets.forEach(s => addSetRow(s.r, s.w));
+            showToast('Подходы подставлены');
+        }
+
         function getKnownExercises() {
             const map = {};
             workouts.forEach(wo => {
@@ -1230,6 +1320,7 @@
         }
 
         function onExerciseNameInput() {
+            updatePrevResult();
             const val = document.getElementById('inp-name').value.toLowerCase().trim();
             const list = document.getElementById('autocomplete-list');
             const known = getKnownExercises();
@@ -1244,10 +1335,11 @@
             matches.forEach(e => {
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
-                item.innerHTML = `${e.name}<span class="autocomplete-muscle">${e.muscle}</span>`;
+                item.innerHTML = `${esc(e.name)}<span class="autocomplete-muscle">${esc(e.muscle)}</span>`;
                 item.onclick = () => {
                     document.getElementById('inp-name').value = e.name;
                     document.getElementById('inp-muscle').value = e.muscle;
+                    updatePrevResult();
                     list.style.display = 'none';
                 };
                 list.appendChild(item);
@@ -1316,8 +1408,14 @@
                 container.innerHTML = '<div class="no-data-msg">Нет данных для анализа замеров.</div>';
                 return;
             }
-            const start = measurementsHistory[0];
-            const current = measurementsHistory[measurementsHistory.length - 1];
+            const keys = ['weight','neck','shoulders','chest','bicepsR','bicepsL','waistNarrow','waistNavel','thighR','thighL','calfR','calfL'];
+            const filled = measurementsHistory.filter(r => keys.some(k => r[k]));
+            if (filled.length === 0) {
+                container.innerHTML = '<div class="no-data-msg">Нет данных для анализа замеров.</div>';
+                return;
+            }
+            const start = filled[0];
+            const current = filled[filled.length - 1];
             const zones = [
                 { key: 'weight', name: 'Вес тела', unit: 'кг', inverse: true },
                 { key: 'neck', name: 'Шея', unit: 'см', inverse: false },
@@ -1446,7 +1544,7 @@
                 card.className = 'strength-card';
                 card.onclick = () => card.classList.toggle('expanded');
                 card.innerHTML = `
-                    <div class="strength-card-title"><span>${name}</span><span class="arrow-icon">▼</span></div>
+                    <div class="strength-card-title"><span>${esc(name)}</span><span class="arrow-icon">▼</span></div>
                     <div class="strength-stats-row">
                         <div class="strength-stat-col left">
                             <span class="strength-stat-value">${first.weight} кг</span>
@@ -1517,7 +1615,7 @@
                 const row = document.createElement('div');
                 row.className = 'muscle-row' + (index === 0 ? ' top' : '');
                 row.innerHTML = `
-                    <span class="muscle-name">${muscle}</span>
+                    <span class="muscle-name">${esc(muscle)}</span>
                     <div class="muscle-bar-wrapper">
                         <div class="muscle-bar-fill" style="width: 0%;"></div>
                     </div>
@@ -1549,7 +1647,7 @@
         function generateExerciseItemHTML(ex) {
             const dotHtml = ex.progress ? '<div class="green-dot"></div>' : '';
             return `<div class="exercise-item">
-                <span class="exercise-name">${ex.name}</span>
+                <span class="exercise-name">${esc(ex.name)}</span>
                 <div class="exercise-stats-wrapper">${dotHtml}<div class="exercise-main-stats"><span>${formatMainStats(ex.sets)}</span></div></div>
             </div>`;
         }
@@ -1558,22 +1656,58 @@
         let restTimerTotal = 0;
         let restTimerRemaining = 0;
 
+        let restTimerEnd = 0;
+        let audioCtx = null;
+
+        function unlockAudio() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch(e) {}
+        }
+
+        function playBeeps() {
+            try {
+                unlockAudio();
+                if (!audioCtx) return;
+                const t0 = audioCtx.currentTime;
+                [0, 0.35, 0.7].forEach((d, i) => {
+                    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = i === 2 ? 1175 : 880;
+                    g.gain.setValueAtTime(0.0001, t0 + d);
+                    g.gain.exponentialRampToValueAtTime(0.6, t0 + d + 0.02);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.28);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.start(t0 + d); o.stop(t0 + d + 0.3);
+                });
+            } catch(e) {}
+        }
+
         function startRestTimer(seconds) {
+            unlockAudio();
             stopRestTimer();
             restTimerTotal = seconds;
-            restTimerRemaining = seconds;
+            restTimerEnd = Date.now() + seconds * 1000;
             document.getElementById('rest-timer-bar').classList.add('active');
-            updateRestTimerDisplay();
-            restTimerInterval = setInterval(() => {
-                restTimerRemaining--;
-                updateRestTimerDisplay();
-                if (restTimerRemaining <= 0) {
-                    stopRestTimer();
-                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                    showToast('Отдых завершён! Давай!');
-                }
-            }, 1000);
+            tickRestTimer();
+            restTimerInterval = setInterval(tickRestTimer, 250);
         }
+
+        function tickRestTimer() {
+            restTimerRemaining = Math.max(0, Math.ceil((restTimerEnd - Date.now()) / 1000));
+            updateRestTimerDisplay();
+            if (restTimerRemaining <= 0) {
+                stopRestTimer();
+                playBeeps();
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                showToast('Отдых завершён! Давай!');
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && restTimerInterval) tickRestTimer();
+        });
 
         function stopRestTimer() {
             if (restTimerInterval) { clearInterval(restTimerInterval); restTimerInterval = null; }
